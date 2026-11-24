@@ -192,6 +192,19 @@ def kmeans(X, k, max_iter=1000):
         if np.allclose(old_U, U):
             break
         obj_val = (0.5 / n) * np.sum(D.min(axis=1))
-        return Y, U, obj_val   
+        return Y, U, obj_val
+def repeatKmeans(X, k, n_runs=100):
+    best_obj_val =  float('inf')
+    best_Y = None
+    best_U = None
+
+    for r in range(n_runs):
+        Y, U, obj_val = kmeans(X, k)
+
+        if obj_val < best_obj_val:
+            best_obj_val = obj_val
+            best_Y = Y
+            best_U = U
+    return best_Y, best_U, best_obj_val
 
         
