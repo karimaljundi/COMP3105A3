@@ -114,5 +114,25 @@ def kernelPCA(X, k, kernel_func):
     A = alphas.T
 
     return A
+def projKernelPCA(Xtest, Xtrain, kernel_func, A):
+    #float so the kernel values dont overflow
+
+    Xtest = Xtest.astype(float)
+    Xtrain = Xtrain.astype(float)
+
+    K_te_tr = kernel_func(Xtrain, Xtrain) # m x n
+    K_tr_tr = kernel_func(Xtrain, Xtest) # n x n
+
+    # (1/n) 1 K_tr_tr column means of the TRAIN kernel, 1 x n
+    # (1/n) K_te_tr 1 row means of the test-train kernel, m x 1
+    # (1/n^2) 1 K_tr_tr 1 mean of the whole TRAIN kernel
+    train_col_means = np.mean(K_tr_tr, axis=0, keepdims=True)
+    test_row_means = np.mean(K_te_tr, axis=1, keepdims=True)
+    train_total_mean = np.mean(K_tr_tr)
+    K_centered = K_te_tr - train_col_means - test_row_means + train_total_mean
+
+    #project into the direction of A
+    Xproj = K_centered @ A.T
+    return Xproj
 
         
