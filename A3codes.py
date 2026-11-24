@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import logsumexp
-from scipy.linalg import eig
+from scipy.linalg import eigh
+from A3helpers import generateData, augmentX
 
 def minMulDev(X, Y):
     n,d = X.shape
@@ -67,7 +68,7 @@ def PCA(X, k):
 
     #eig sorts eigenvalues smallest to biggest, so the top k are the last k
     #subset_by_index means we only those ones
-    vals, vecs = eig(C, subset_by_index=[d-k, d-1])
+    vals, vecs = eigh(C, subset_by_index=[d-k, d-1])
 
     #eigenvectors come back as columns in ascending order
     #we flip so the biggest is first
@@ -100,7 +101,7 @@ def kernelPCA(X, k, kernel_func):
     K_centered = K - col_means - row_means + total_mean
 
     #top k eigenvectors
-    vals, vecs = eig(K_centered, subset_by_index=[n-k, n-1])
+    vals, vecs = eigh(K_centered, subset_by_index=[n-k, n-1])
 
 
     #make the biggest eigenvalue first
@@ -134,5 +135,38 @@ def projKernelPCA(Xtest, Xtrain, kernel_func, A):
     #project into the direction of A
     Xproj = K_centered @ A.T
     return Xproj
+def synClsExperimentsPCA():
+    n_runs = 100
+    n_train = 128
+    n_test = 1000
+    dim_list = [1, 2]
+    gen_model_list = [1, 2]
+    train_acc = np.zeros([len(dim_list), len(gen_model_list), n_runs])
+    test_acc = np.zeros([len(dim_list), len(gen_model_list), n_runs])
+    np.random.seed(56)
+    for r in range(n_runs):
+        for i, k in enumerate(dim_list):
+            for j, gen_model in enumerate(gen_model_list):
+                Xtrain, Ytrain = generateData(n=n_train, gen_model=gen_model)
+                Xtest, Ytest = generateData(n=n_test, gen_model=gen_model)
+    
+                U, mu = PCA(Xtrain, k)
+                Xtrain_proj = projPCA(Xtrain, mu, U)
+                Xtest_proj = projPCA(Xtest, mu, U)
+
+                Xtrain_proj = augmentX(Xtrain_proj) # add augmentation
+                Xtest_proj = augmentX(Xtest_proj)
+
+                W = minMulDev(Xtrain_proj, Ytrain) # from Q1
+                Yhat = classify(Xtrain_proj, W) # from Q1
+                train_acc[i, j, r] = calculateAcc(Yhat, Ytrain) # from Q1
+
+                Yhat = classify(Xtest_proj, W)
+                test_acc[i, j, r] = calculateAcc(Yhat, Ytest)
+    train_avg = np.mean(train_acc, axis=2)
+    test_avg = np.mean(test_acc, axis=2)
+
+    return train_avg, test_avg
+    
 
         
