@@ -84,6 +84,35 @@ def projPCA(Xtest, mu, U):
 
     Xproj = Xc @ U.T
     return Xproj
+def kernelPCA(X, k, kernel_func):
+    #make sure kernel values dont overflow
+    X = X.astype(float)
+    n = X.shape[0]
 
+    K = kernel_func(X, X)
+
+    # (1/n) 1 K mean of each column, same for every row
+    # (1/n) K 1 mean of each row, same for every column
+    # (1/n^2) 1 K 1 mean of the whole matrix
+    col_means = np.mean(K, axis=0, keepdims=True)
+    row_means = np.mean(K, axis=1, keepdims=True)
+    total_mean = np.mean(K)
+    K_centered = K - col_means - row_means + total_mean
+
+    #top k eigenvectors
+    vals, vecs = eig(K_centered, subset_by_index=[n-k, n-1])
+
+
+    #make the biggest eigenvalue first
+    vals = vals[::-1]
+    vecs = vecs[:, ::-1]
+
+    # eigh gives unit length vectors, divide each column by sqrt of its eigenvalue
+    alphas = vecs / np.sqrt(vals)
+
+
+    A = alphas.T
+
+    return A
 
         
