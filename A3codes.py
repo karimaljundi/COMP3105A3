@@ -3,6 +3,7 @@ from scipy.optimize import minimize
 from scipy.special import logsumexp
 from scipy.linalg import eigh
 from A3helpers import generateData, augmentX
+from scipy.spatial.distance import cdist
 
 def minMulDev(X, Y):
     n,d = X.shape
@@ -167,6 +168,30 @@ def synClsExperimentsPCA():
     test_avg = np.mean(test_acc, axis=2)
 
     return train_avg, test_avg
-    
+def kmeans(X, k, max_iter=1000):
+    n,d = X.shape
+    assert max_iter >0 and 1 < k < n 
+
+    #pick k different rowas of X at random to start as the centers
+    start_idx = np.random.choice(n, k, replace=False)
+    U = X[start_idx]
+    for i in range(max_iter):
+        #squared distance from every point to every center, n x k
+        D = cdist(X, U, 'sqeuclidean')
+
+        #closest center for each point
+        closest  = np.argmin(D, axis=1)
+
+        #turn it into one hot n x k matrix
+        Y = np.zeros((n, k))
+        Y[np.arange(n), closest] = 1
+        old_U = U
+
+        # new centers, pinv(Y) @ X is the average of the points in each cluster
+        U = np.linalg.pinv(Y) @ X
+        if np.allclose(old_U, U):
+            break
+        obj_val = (0.5 / n) * np.sum(D.min(axis=1))
+        return Y, U, obj_val   
 
         
