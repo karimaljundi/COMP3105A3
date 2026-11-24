@@ -74,6 +74,16 @@ def PCA(X, k):
     vecs = vecs[:, ::-1]
     U = vecs.T
     return U, mu
+def projPCA(Xtest, mu, U):
+
+    #mu is d x 1, so mu.T is a 1 x d row
+    #subtract that row from every row of Xtest
+    Xc = Xtest - mu.T
+
+    #project each centered point onto the k directions in U
+
+    Xproj = Xc @ U.T
+    return Xproj
 
 
         
