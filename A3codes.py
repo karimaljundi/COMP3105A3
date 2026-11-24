@@ -12,7 +12,7 @@ def minMulDev(X, Y):
         scores = X @ W
 
         #first part of the loss: log(sum(exp(scores))) for each row
-        first_term = logsumexp
+        first_term = logsumexp(scores, axis=1)
 
         #second part: y_i is one hot so this just grabs the score of the correct class
         second_term = np.sum(Y * scores, axis=1)
@@ -51,4 +51,6 @@ def calculateAcc(Yhat, Y):
     m = Y.shape[0]
     acc = correct / m
     return acc
+
+
         

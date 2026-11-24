@@ -6,7 +6,7 @@
 #       We will use a different script to test your codes. 
 from matplotlib import pyplot as plt
 
-import YourName.A3codes as A3codes
+import A3codes as A3codes
 from A3helpers import augmentX, gaussKernel, plotModel, generateData, plotPoints
 
 
@@ -63,8 +63,8 @@ def _plotKernelKmeans():
 
 
 if __name__ == "__main__":
-
+	
 	_plotCls()
-	_testPCA()
-	_plotKmeans()
-	_plotKernelKmeans()
+	# _testPCA()
+	# _plotKmeans()
+	# _plotKernelKmeans()
