@@ -206,5 +206,12 @@ def repeatKmeans(X, k, n_runs=100):
             best_Y = Y
             best_U = U
     return best_Y, best_U, best_obj_val
+def chooseK(X, k_candidates=[2,3,4,5,6,7,8,9]):
+    obj_val_list = []
+    for k in k_candidates:
+        #best obj out of 100 restarts for this k
+        Y, U, obj_val = repeatKmeans(X, k)
+        obj_val_list.append(obj_val)
+    return obj_val_list    
 
         
