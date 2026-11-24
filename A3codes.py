@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import logsumexp
+from scipy.linalg import eig
 
 def minMulDev(X, Y):
     n,d = X.shape
@@ -51,6 +52,28 @@ def calculateAcc(Yhat, Y):
     m = Y.shape[0]
     acc = correct / m
     return acc
+def PCA(X, k):
+    n,d = X.shape
+
+    #mean of each feature, kept as a d x 1 column
+    mu = np.mean(X, axis=0)
+    mu = mu.reshape(d,1)
+
+    #subtract mean from every row
+    Xc = X - mu.T
+
+    #the d x d matrix we want the eigenvectors of
+    C = Xc.T @ Xc
+
+    #eig sorts eigenvalues smallest to biggest, so the top k are the last k
+    #subset_by_index means we only those ones
+    vals, vecs = eig(C, subset_by_index=[d-k, d-1])
+
+    #eigenvectors come back as columns in ascending order
+    #we flip so the biggest is first
+    vecs = vecs[:, ::-1]
+    U = vecs.T
+    return U, mu
 
 
         
