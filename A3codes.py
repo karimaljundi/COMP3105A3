@@ -26,4 +26,29 @@ def minMulDev(X, Y):
 
     W = result.x.reshape(d,k)
     return W
+def classify(Xtest, W):
+    #scores for every test point, row i: W^T * x_i
+    scores = Xtest @ W
+
+    predicted = np.argmax(scores, axis=1)
+
+    m = Xtest.shape[0]
+    k = W.shape[1]
+    Yhat = np.zeros((m, k))
+    Yhat[np.arange(m), predicted] = 1
+    return Yhat
+def calculateAcc(Yhat, Y):
+
+    #which class each row predicted and which class it actually is
+    predicted = np.argmax(Yhat, axis=1)
+    actual = np.argmax(Y, axis=1)
+
+    #num of rows that match
+    correct = np.sum(predicted == actual)
+
+
+    #calculate accuracy
+    m = Y.shape[0]
+    acc = correct / m
+    return acc
         
